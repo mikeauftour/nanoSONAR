@@ -4,7 +4,7 @@
 
 **nanoSONAR** ist ein kompakter MIDI-Mixer für **SteelSeries GG Sonar** unter Windows 11. Die Anwendung verbindet einen **KORG nanoKONTROL2** mit den Lautstärke- und Stummschaltfunktionen von Sonar. So lassen sich Audiokanäle über echte Fader, Drehregler und Tasten steuern, ohne ständig das Sonar-Fenster öffnen zu müssen.
 
-**Version:** 1.0.0 · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
+**Entwicklungsstand:** 1.1.0 (Branch `feature/osd-v1.1`; stabile Version: 1.0.0) · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
 
 ## Funktionen
 
@@ -14,6 +14,7 @@
 - **Mixer-Oberfläche:** Acht Kanalzüge mit grafischen Fadern, Drehreglern und Mute-Anzeigen.
 - **Automatische Verbindung:** MIDI-Eingang, MIDI-Ausgang und SteelSeries Sonar werden beim Start verbunden; Wiederverbindungsversuche sind vorgesehen.
 - **System-Tray:** Im Hintergrund weiterlaufen und über das Tray-Menü öffnen oder beenden.
+- **Neu in v1.1 (Entwicklung):** Kleines OSD bei MIDI-Fader-, Drehregler- und Mute-Bedienung mit Kanal, Mix, Prozentwert und Stummstatus. Standard: oben rechts, drei Sekunden, nur bei ausgeblendetem Mixer. Einstellbar im Einstellungsfenster.
 - **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
 - **Konfigurierbare MIDI-Profile** und gespeicherte Einstellungen.
 

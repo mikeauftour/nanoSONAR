@@ -136,7 +136,8 @@ internal sealed class MixerForm : Form
         public bool CloseToTray { get; set; } = true;
         public bool AutoConnect { get; set; } = true;
         public bool OsdEnabled { get; set; } = true;
-        public bool OsdTopRight { get; set; } = true;
+        public bool OsdTopRight { get; set; } = true; // legacy v1.1 setting
+        public string? OsdPosition { get; set; } // null migrates the previous left/right choice
         public int OsdDurationSeconds { get; set; } = 3;
         public bool OsdOnlyInTray { get; set; } = true;
     }
@@ -146,7 +147,7 @@ internal sealed class MixerForm : Form
     {
         if (!startup.OsdEnabled || (startup.OsdOnlyInTray && Visible && WindowState != FormWindowState.Minimized)) return;
         var label = channel switch { "master" => "Master", "game" => "Game", "chatRender" => "Chat", "chatCapture" => "Mic", "media" => "Media", "aux" => "Aux", _ => channel };
-        osd.Display(label, mix == "monitoring" ? "Monitoring" : mix == "streaming" ? "Streaming" : "Classic", percent, muted, startup.OsdTopRight, startup.OsdDurationSeconds);
+        osd.Display(label, mix == "monitoring" ? "Monitoring" : mix == "streaming" ? "Streaming" : "Classic", percent, muted, startup.OsdPosition ?? (startup.OsdTopRight ? "top-right" : "top-left"), startup.OsdDurationSeconds);
     }
     private readonly bool startedWithTrayArgument;
     private bool initialVisibilityHandled;
@@ -391,8 +392,11 @@ internal sealed class MixerForm : Form
             AddSetting(13, "Verbindungen", autoConnectBox);
             var osdEnabledBox = new CheckBox { Text = "Overlay bei MIDI-Bedienung", Checked = startup.OsdEnabled, ForeColor = Color.White };
             var osdPositionBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
-            osdPositionBox.Items.AddRange(new object[] { "Oben rechts", "Oben links" });
-            osdPositionBox.SelectedIndex = startup.OsdTopRight ? 0 : 1;
+            osdPositionBox.Items.AddRange(new object[] { "Oben links", "Oben rechts", "Oben Mitte", "Unten links", "Unten rechts", "Unten Mitte" });
+            string[] osdPositions = { "top-left", "top-right", "top-center", "bottom-left", "bottom-right", "bottom-center" };
+            string savedPosition = startup.OsdPosition ?? (startup.OsdTopRight ? "top-right" : "top-left");
+            int savedIndex = Array.IndexOf(osdPositions, savedPosition);
+            osdPositionBox.SelectedIndex = savedIndex >= 0 ? savedIndex : 1;
             var osdDurationBox = new NumericUpDown { Minimum = 1, Maximum = 10, Value = Math.Clamp(startup.OsdDurationSeconds, 1, 10) };
             var osdTrayBox = new CheckBox { Text = "Nur bei ausgeblendetem Mixer", Checked = startup.OsdOnlyInTray, ForeColor = Color.White };
             AddSetting(14, "OSD aktivieren", osdEnabledBox);
@@ -406,7 +410,8 @@ internal sealed class MixerForm : Form
                 startup.CloseToTray = closeToTrayBox.Checked;
                 startup.AutoConnect = autoConnectBox.Checked;
                 startup.OsdEnabled = osdEnabledBox.Checked;
-                startup.OsdTopRight = osdPositionBox.SelectedIndex == 0;
+                startup.OsdPosition = osdPositions[Math.Max(0, osdPositionBox.SelectedIndex)];
+                startup.OsdTopRight = startup.OsdPosition == "top-right";
                 startup.OsdDurationSeconds = (int)osdDurationBox.Value;
                 startup.OsdOnlyInTray = osdTrayBox.Checked;
                 if (!startup.OsdEnabled) osd.Hide();

@@ -12,7 +12,7 @@ internal sealed class VolumeOsdForm : Form
     private string mix = "Monitoring";
     private int percent;
     private bool muted;
-    private bool topRight = true;
+    
 
     protected override bool ShowWithoutActivation => true;
     protected override CreateParams CreateParams
@@ -37,20 +37,29 @@ internal sealed class VolumeOsdForm : Form
         dismiss.Tick += (_, _) => { dismiss.Stop(); Hide(); };
     }
 
-    public void Display(string channelName, string mixName, int level, bool isMuted, bool right, int seconds)
+    public void Display(string channelName, string mixName, int level, bool isMuted, string position, int seconds)
     {
         if (IsDisposed) return;
         channel = channelName;
         mix = mixName;
         percent = Math.Clamp(level, 0, 100);
         muted = isMuted;
-        topRight = right;
         dismiss.Stop();
         dismiss.Interval = Math.Clamp(seconds, 1, 10) * 1000;
         var screen = Screen.FromPoint(Cursor.Position).WorkingArea;
         // Always place on the primary screen for predictable positioning.
         screen = Screen.PrimaryScreen?.WorkingArea ?? screen;
-        Location = new Point(topRight ? screen.Right - Width - 18 : screen.Left + 18, screen.Top + 18);
+        const int margin = 18;
+        int x = position switch
+        {
+            "top-left" or "bottom-left" => screen.Left + margin,
+            "top-center" or "bottom-center" => screen.Left + (screen.Width - Width) / 2,
+            _ => screen.Right - Width - margin
+        };
+        int y = position.StartsWith("bottom-", StringComparison.Ordinal)
+            ? screen.Bottom - Height - margin
+            : screen.Top + margin;
+        Location = new Point(x, y);
         if (!Visible) Show();
         Invalidate();
         dismiss.Start();

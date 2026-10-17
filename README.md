@@ -14,7 +14,7 @@
 - **Mixer-Oberfläche:** Acht Kanalzüge mit grafischen Fadern, Drehreglern und Mute-Anzeigen.
 - **Automatische Verbindung:** MIDI-Eingang, MIDI-Ausgang und SteelSeries Sonar werden beim Start verbunden; Wiederverbindungsversuche sind vorgesehen.
 - **System-Tray:** Im Hintergrund weiterlaufen und über das Tray-Menü öffnen oder beenden.
-- **Neu in v1.1 (Entwicklung):** Kleines OSD bei MIDI-Fader-, Drehregler- und Mute-Bedienung mit Kanal, Mix, Prozentwert und Stummstatus. Standard: oben rechts, drei Sekunden, nur bei ausgeblendetem Mixer. Einstellbar im Einstellungsfenster.
+- **Neu in v1.1 (Entwicklung):** Kleines OSD bei MIDI-Fader-, Drehregler- und Mute-Bedienung mit Kanal, Mix, Prozentwert und Stummstatus. Standard: oben rechts, drei Sekunden, nur bei ausgeblendetem Mixer. Im Einstellungsfenster stehen sechs Positionen zur Auswahl: oben links, oben Mitte, oben rechts, unten links, unten Mitte und unten rechts.
 - **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
 - **Konfigurierbare MIDI-Profile** und gespeicherte Einstellungen.
 

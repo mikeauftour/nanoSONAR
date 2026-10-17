@@ -59,7 +59,7 @@ Die fertige Anwendung liegt in `publish/nanoSONAR.exe`. Weitere Hinweise zur Ers
 ## Wichtige Hinweise
 
 - nanoSONAR verwendet eine **lokale, nicht offiziell dokumentierte Sonar-Schnittstelle**. Änderungen an SteelSeries GG können die Kompatibilität beeinträchtigen.
-- Änderungen an der Lautstärke wirken sich auf Sonar aus; die Fader in der **originalen SteelSeries-GG-Oberfläche** müssen diese Änderungen nicht sofort optisch anzeigen.
+- **Noch nicht umgesetzt (geplant):** Wenn die Hardware-Fader am KORG nanoKONTROL2 bewegt werden, ändert nanoSONAR bereits die Lautstärke in Sonar. Die **sichtbare Bewegung bzw. Aktualisierung der Fader in der originalen SteelSeries-GG-Sonar-Oberfläche** funktioniert derzeit jedoch noch nicht. Diese Funktion soll mit einem zukünftigen Update nachgereicht werden.
 - Die Anwendung ist ein **unabhängiges Community-Projekt** und steht in keiner offiziellen Verbindung zu SteelSeries oder KORG.
 - Die Bedienung und insbesondere MIDI-LEDs hängen von Gerätekonfiguration, Treibern und Sonar-Modus ab.
 

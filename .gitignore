@@ -1,0 +1,7 @@
+﻿bin/
+obj/
+publish/
+nanoSONAR-v*-win-x64/
+nanoSONAR-v*-win-x64.zip
+.vs/
+*.user

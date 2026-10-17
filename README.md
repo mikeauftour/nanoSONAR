@@ -1,76 +1,70 @@
-# nanoSONAR v0.7 – UI-Update
+# nanoSONAR
 
-Basiert auf v0.6.1. Neue Oberfläche mit zweizeiliger Toolbar, acht grafischen Drehregler-Anzeigen (Monitoring), acht vertikalen Fadern (Streaming) und Mute-Tasten. Die Drehregler-Anzeigen sind zunächst reine Zustandsanzeigen; MIDI-Hardware sendet die Werte. Die Zuordnungen bleiben über JSON-Profile konfigurierbar.
+![nanoSONAR-Icon](nanoSONAR-icon.png)
 
-## Start (Windows 11)
-Im Ordner `NanoSonarController`:
+**nanoSONAR** ist ein kompakter MIDI-Mixer für **SteelSeries GG Sonar** unter Windows 11. Die Anwendung verbindet einen **KORG nanoKONTROL2** mit den Lautstärke- und Stummschaltfunktionen von Sonar. So lassen sich Audiokanäle über echte Fader, Drehregler und Tasten steuern, ohne ständig das Sonar-Fenster öffnen zu müssen.
+
+**Version:** 1.0.0 · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
+
+## Funktionen
+
+- **Streaming-Mix:** Hardware-Fader zur Lautstärkeregelung.
+- **Monitoring-Mix:** Hardware-Drehregler zur getrennten Lautstärkeregelung.
+- **Getrennte Mute-Steuerung:** S-Tasten für Streaming, M-Tasten für Monitoring; Statusanzeige in der Anwendung und über die KORG-LEDs.
+- **Mixer-Oberfläche:** Acht Kanalzüge mit grafischen Fadern, Drehreglern und Mute-Anzeigen.
+- **Automatische Verbindung:** MIDI-Eingang, MIDI-Ausgang und SteelSeries Sonar werden beim Start verbunden; Wiederverbindungsversuche sind vorgesehen.
+- **System-Tray:** Im Hintergrund weiterlaufen und über das Tray-Menü öffnen oder beenden.
+- **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
+- **Konfigurierbare MIDI-Profile** und gespeicherte Einstellungen.
+
+### Standardbelegung (KORG nanoKONTROL2)
+
+| Bedienelement | Funktion |
+| --- | --- |
+| Fader 1–6 | Streaming-Lautstärke: Master, Game, Chat, Media, Aux, Mic |
+| Drehregler 1–6 | Monitoring-Lautstärke derselben Kanäle |
+| S-Tasten 1–6 | Streaming stummschalten / Stummschaltung aufheben |
+| M-Tasten 1–6 | Monitoring stummschalten / Stummschaltung aufheben |
+| R-Tasten | Nicht belegt |
+
+Die weiteren Kanalzüge sind in der Oberfläche vorhanden; ihre Nutzung hängt vom Profil und dem aktuellen Implementierungsstand ab.
+
+## Download & Nutzung
+
+Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt, sobald ein Release veröffentlicht wurde.
+
+1. Das ZIP `nanoSONAR-v1.0-win-x64.zip` aus dem jeweiligen Release herunterladen.
+2. An einem **dauerhaften Speicherort** entpacken.
+3. `nanoSONAR.exe` starten.
+
+**Kein Installer und kein separat installiertes .NET erforderlich**, sofern die veröffentlichte EXE als Self-contained-Build erstellt wurde.
+
+Für die Steuerung werden **SteelSeries GG mit aktiviertem Sonar** und ein entsprechend eingerichteter **KORG nanoKONTROL2** benötigt. Für die Tasten-LEDs muss im KORG Kontrol Editor **LED Mode = External** eingestellt sein; die MIDI-CC-Zuordnung muss zum gewählten Profil passen.
+
+> **Autostart-Hinweis:** Die Anwendung am endgültigen Speicherort starten, bevor der Autostart aktiviert bzw. gespeichert wird. Wird die EXE später verschoben, muss der Autostart-Pfad aktualisiert werden.
+
+## Aus Quellcode bauen
+
+Voraussetzung: **.NET 8 SDK** auf Windows 11.
+
+Im Repository-Ordner `BUILD-RELEASE.cmd` ausführen. Alternativ in PowerShell:
 
 ```powershell
 dotnet restore
-dotnet run
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o publish
 ```
 
-## EXE erstellen
-```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
-```
+Die fertige Anwendung liegt in `publish/nanoSONAR.exe`. Weitere Hinweise zur Erstellung einer ZIP-Version stehen in [BUILD.md](BUILD.md).
 
-Die Darstellung und MIDI-Funktion müssen auf Windows mit dem nanoKONTROL2 getestet werden. Die LEDs benötigen einen verbundenen MIDI-Ausgang und den passenden External-LED-Modus am Gerät. Die SteelSeries-GG-Oberfläche muss API-Änderungen nicht unmittelbar visuell übernehmen.
+## Wichtige Hinweise
 
+- nanoSONAR verwendet eine **lokale, nicht offiziell dokumentierte Sonar-Schnittstelle**. Änderungen an SteelSeries GG können die Kompatibilität beeinträchtigen.
+- Änderungen an der Lautstärke wirken sich auf Sonar aus; die Fader in der **originalen SteelSeries-GG-Oberfläche** müssen diese Änderungen nicht sofort optisch anzeigen.
+- Die Anwendung ist ein **unabhängiges Community-Projekt** und steht in keiner offiziellen Verbindung zu SteelSeries oder KORG.
+- Die Bedienung und insbesondere MIDI-LEDs hängen von Gerätekonfiguration, Treibern und Sonar-Modus ab.
 
-## v0.7.1 – M/S/R-Fix
-- Only M (CC 48–55) toggles mute; S (32–39) and R (64–71) are ignored.
-- Only M LEDs reflect mute; S and R LEDs are explicitly switched off.
-- New profile path `%APPDATA%\nanoSONAR\profiles-v071.json` prevents older mappings from being reused.
-- KORG Kontrol Editor: LED Mode must be External and MIDI CC numbers must match.
-- The default profile uses M for streaming mute; the Classic profile uses Classic mute.
+## Projekt
 
-## v0.7.2 – Separate Mute-Tasten
-- S (CC 32–39) steuert Streaming-Mute, M (CC 48–55) steuert Monitoring-Mute, R (CC 64–71) bleibt frei.
-- S- und M-LEDs spiegeln jeweils ihren eigenen Mute-Zustand; R-LEDs bleiben aus.
-- Im Classic-Modus steuern S und M beide Classic, weil dort keine getrennten Mixe vorhanden sind.
-- Neue Profildatei `%APPDATA%\nanoSONAR\profiles-v072.json`, damit alte Profile nicht übernommen werden.
-- Voraussetzung: KORG-Tasten senden die genannten CCs, LED Mode = External.
+Entwicklung: **Mike auf Tour**
 
-
-## v0.7.3: Monitoring-Mute visuell
-- Der Monitoring-Drehregler wird rot und zeigt **MUTE**, wenn sein zugeordneter Monitoring-Kanal stumm ist. Der Prozentwert bleibt erhalten und erscheint nach Unmute wieder.
-- Unter jedem Kanal sind **S · Stream** und **M · Monitor** getrennt sichtbar; stummgeschaltete Tasten werden rot und zeigen **STUMM**.
-- Die Anzeige folgt den aus Sonar gelesenen Zuständen (Aktualisierung ca. 800 ms), nicht nur den zuletzt gedrückten Tasten.
-- Hardware-LEDs bleiben über die bestehenden MIDI-Ausgangszuordnungen gesteuert.
-- In Classic zeigen beide Tasten denselben Classic-Mute-Zustand.
-
-Start: `dotnet restore` und `dotnet run` im Projektordner. Windows-Build und Hardware noch nicht verifiziert.
-
-
-## v0.7.4
-- Streaming-Fader zeigen bei aktivem Streaming-Mute eine rote Fläche und `STREAM STUMM` an.
-- Monitoring-Drehregler behalten ihre separate rote MUTE-Anzeige.
-- Die Faderposition bleibt beim Stummschalten erhalten.
-- Die Anzeigen folgen dem aus der Sonar-API ausgelesenen Zustand (Polling).
-
-
-## v0.7.5 Automatische Verbindungen
-Beim Start verbindet nanoSONAR MIDI IN, MIDI OUT und Sonar automatisch. Die zuletzt verwendeten MIDI-Gerätenamen werden in `%APPDATA%\nanoSONAR\devices.json` gespeichert. Fehlende MIDI-Geräte werden alle 5 Sekunden erneut gesucht. Sonar nutzt weiterhin die bestehende automatische Wiederverbindung. Manuelle Tasten bleiben verfügbar. Hinweis: Ein während des Betriebs abgezogenes MIDI-Gerät kann je nach Windows-MIDI-Treiber erst nach einem Neustart der Anwendung wieder verwendbar sein.
-
-
-## v0.7.6 UI
-- Mute-Schaltflächen mit kontrastreicher Schrift und expliziten Farben, auch wenn sie nicht verfügbar sind.
-- Feste Kanalbreite und horizontales Scrollen bei schmalen Fenstern, damit Beschriftungen nicht abgeschnitten werden.
-- Fensterposition, Größe und Maximierungszustand in `%APPDATA%\nanoSONAR\window.json` speichern; beim nächsten Start wiederherstellen.
-- Beenden über das Tray-Menü; Schließen blendet weiterhin ins Tray aus.
-
-
-## v0.7.7 Responsive Layout
-Mixer columns distribute evenly across the available viewport width. Below 104px per channel the mixer scrolls horizontally, preventing clipped controls. In compact mode labels shorten to STREAM and MONITOR. Window persistence remains as in v0.7.6.
-
-
-## v0.7.8 Fensterlayout
-- Fensterhoehe ist fest auf 850 Pixel gesetzt; nur die Breite ist veraenderbar.
-- Mindestbreite 1150 Pixel verhindert zusammengedrueckte Kanalspalten.
-- Fensterbreite und Position werden weiterhin in `%APPDATA%\nanoSONAR\window.json` gespeichert.
-- Ein alter maximierter Fensterzustand wird nicht wiederhergestellt.
-- Bei Windows-DPI-Skalierung kann die tatsaechliche Bildschirmgroesse abweichen.
-
-## v0.7.9
-Unteren Leerraum reduziert: feste Fensterhöhe 770 statt 850 Pixel, Mixerhöhe 535 Pixel, Fußzeile 28 Pixel. Fensterbreite/Position werden weiter gespeichert; alte gespeicherte Höhe wird bewusst ignoriert.
+Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](https://github.com/mikeauftour/nanoSONAR/issues) einreichen.

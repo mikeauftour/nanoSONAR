@@ -135,8 +135,20 @@ internal sealed class MixerForm : Form
         public bool StartInTray { get; set; } = true;
         public bool CloseToTray { get; set; } = true;
         public bool AutoConnect { get; set; } = true;
+        public bool OsdEnabled { get; set; } = true;
+        public bool OsdTopRight { get; set; } = true; // legacy v1.1 setting
+        public string? OsdPosition { get; set; } // null migrates the previous left/right choice
+        public int OsdDurationSeconds { get; set; } = 3;
+        public bool OsdOnlyInTray { get; set; } = true;
     }
     private StartupSettings startup = new();
+    private readonly VolumeOsdForm osd = new();
+    private void ShowMidiOsd(string channel, string mix, int percent, bool muted)
+    {
+        if (!startup.OsdEnabled || (startup.OsdOnlyInTray && Visible && WindowState != FormWindowState.Minimized)) return;
+        var label = channel switch { "master" => "Master", "game" => "Game", "chatRender" => "Chat", "chatCapture" => "Mic", "media" => "Media", "aux" => "Aux", _ => channel };
+        osd.Display(label, mix == "monitoring" ? "Monitoring" : mix == "streaming" ? "Streaming" : "Classic", percent, muted, startup.OsdPosition ?? (startup.OsdTopRight ? "top-right" : "top-left"), startup.OsdDurationSeconds);
+    }
     private readonly bool startedWithTrayArgument;
     private bool initialVisibilityHandled;
     private void LoadStartupSettings()
@@ -297,7 +309,7 @@ internal sealed class MixerForm : Form
 
     private void InitializeMixer()
     {
-        Text = "nanoSONAR v0.8 – KORG nanoKONTROL2"; Size = new Size(1450, 650); MinimumSize = new Size(1150, 650); MaximumSize = new Size(10000, 650); MaximizeBox = false;
+        Text = "nanoSONAR v1.1 – KORG nanoKONTROL2"; Size = new Size(1450, 650); MinimumSize = new Size(1150, 650); MaximumSize = new Size(10000, 650); MaximizeBox = false;
         BackColor = Color.FromArgb(23, 26, 34); ForeColor = Color.White;
         // Compact toolbar: configuration controls live in a separate settings window.
         var toolbar = new TableLayoutPanel { Dock = DockStyle.Top, Height = 54, ColumnCount = 4, RowCount = 1,
@@ -342,15 +354,15 @@ internal sealed class MixerForm : Form
 
         void OpenSettings()
         {
-            using var dialog = new Form { Text = "nanoSONAR – Einstellungen", Size = new Size(620, 630),
-                MinimumSize = new Size(620, 630), MaximumSize = new Size(620, 630),
+            using var dialog = new Form { Text = "nanoSONAR – Einstellungen", Size = new Size(620, 770),
+                MinimumSize = new Size(620, 770), MaximumSize = new Size(620, 770),
                 FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
                 StartPosition = FormStartPosition.CenterParent, BackColor = Color.FromArgb(31, 36, 48), ForeColor = Color.White };
-            var settingsGrid = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 15,
+            var settingsGrid = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 19,
                 Padding = new Padding(20, 16, 20, 16) };
             settingsGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180));
             settingsGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            for (int r = 0; r < 14; r++) settingsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
+            for (int r = 0; r < 18; r++) settingsGrid.RowStyles.Add(new RowStyle(SizeType.Absolute, 36));
             settingsGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             void AddSetting(int row, string label, Control control)
             {
@@ -378,19 +390,38 @@ internal sealed class MixerForm : Form
             AddSetting(11, "Startmodus", startInTrayBox);
             AddSetting(12, "Schließen", closeToTrayBox);
             AddSetting(13, "Verbindungen", autoConnectBox);
+            var osdEnabledBox = new CheckBox { Text = "Overlay bei MIDI-Bedienung", Checked = startup.OsdEnabled, ForeColor = Color.White };
+            var osdPositionBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
+            osdPositionBox.Items.AddRange(new object[] { "Oben links", "Oben rechts", "Oben Mitte", "Unten links", "Unten rechts", "Unten Mitte" });
+            string[] osdPositions = { "top-left", "top-right", "top-center", "bottom-left", "bottom-right", "bottom-center" };
+            string savedPosition = startup.OsdPosition ?? (startup.OsdTopRight ? "top-right" : "top-left");
+            int savedIndex = Array.IndexOf(osdPositions, savedPosition);
+            osdPositionBox.SelectedIndex = savedIndex >= 0 ? savedIndex : 1;
+            var osdDurationBox = new NumericUpDown { Minimum = 1, Maximum = 10, Value = Math.Clamp(startup.OsdDurationSeconds, 1, 10) };
+            var osdTrayBox = new CheckBox { Text = "Nur bei ausgeblendetem Mixer", Checked = startup.OsdOnlyInTray, ForeColor = Color.White };
+            AddSetting(14, "OSD aktivieren", osdEnabledBox);
+            AddSetting(15, "OSD-Position", osdPositionBox);
+            AddSetting(16, "Anzeigedauer (Sek.)", osdDurationBox);
+            AddSetting(17, "OSD-Sichtbarkeit", osdTrayBox);
             void SaveOptions()
             {
                 startup.AutoStart = autoStartBox.Checked;
                 startup.StartInTray = startInTrayBox.Checked;
                 startup.CloseToTray = closeToTrayBox.Checked;
                 startup.AutoConnect = autoConnectBox.Checked;
+                startup.OsdEnabled = osdEnabledBox.Checked;
+                startup.OsdPosition = osdPositions[Math.Max(0, osdPositionBox.SelectedIndex)];
+                startup.OsdTopRight = startup.OsdPosition == "top-right";
+                startup.OsdDurationSeconds = (int)osdDurationBox.Value;
+                startup.OsdOnlyInTray = osdTrayBox.Checked;
+                if (!startup.OsdEnabled) osd.Hide();
                 SaveStartupSettings();
                 ApplyWindowsAutostart(true);
                 if (startup.AutoConnect) { AutoConnectMidi(); _ = ConnectSonar(); }
             }
             var closeButton = new Button { Text = "Speichern & Schließen", Width = 120, Height = 30, Anchor = AnchorStyles.Right };
             closeButton.Click += (_, _) => { SaveOptions(); dialog.Close(); };
-            settingsGrid.Controls.Add(closeButton, 1, 14);
+            settingsGrid.Controls.Add(closeButton, 1, 18);
             dialog.Controls.Add(settingsGrid);
             dialog.ShowDialog(this);
             // WinForms removes the controls from the disposed dialog; they are reparented
@@ -496,7 +527,7 @@ internal sealed class MixerForm : Form
         tray.ContextMenuStrip = menu; tray.DoubleClick += (_, _) => { OpenMixer(); };
         Resize += (_, _) => { if (WindowState == FormWindowState.Minimized) Hide(); };
         FormClosing += (_, e) => { if (!closing && startup.CloseToTray && e.CloseReason == CloseReason.UserClosing) { SaveWindow(); e.Cancel = true; Hide(); } else SaveWindow(); };
-        FormClosed += (_, _) => { timer.Stop(); flushTimer.Stop(); midiReconnectTimer.Stop(); midi?.Dispose(); midiOut?.Dispose(); api.Dispose(); tray.Visible = false; tray.Dispose(); appIcon?.Dispose(); gate.Dispose(); };
+        FormClosed += (_, _) => { timer.Stop(); flushTimer.Stop(); midiReconnectTimer.Stop(); midi?.Dispose(); midiOut?.Dispose(); api.Dispose(); tray.Visible = false; tray.Dispose(); osd.Dispose(); appIcon?.Dispose(); gate.Dispose(); };
     }
     private void ScanMidi()
     {
@@ -593,6 +624,8 @@ internal sealed class MixerForm : Form
         if (!AllowedKeys.Contains(key)) return;
         var mix = EffectiveMix(mixRequest);
         pendingByTarget[TargetId(key, mix)] = value;
+        var priorMuted = observed.TryGetValue(TargetId(key, mix), out var osdState) && osdState.Muted;
+        ShowMidiOsd(key, mix, (int)Math.Round(value * 100.0 / 127), priorMuted);
         int i = Array.FindIndex(keys, k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
         if (i >= 0)
         {
@@ -732,6 +765,7 @@ internal sealed class MixerForm : Form
             }
             await api.SetMute(mix == "classic" ? "classic" : "streamer", mix, key, !state.Muted);
             observed[TargetId(key, mix)] = (state.Volume, !state.Muted);
+            ShowMidiOsd(key, mix, (int)Math.Round(state.Volume * 100), !state.Muted);
             UpdateLeds();
             status.Text = $"Mute {key}@{mix}: {!state.Muted}";
         }

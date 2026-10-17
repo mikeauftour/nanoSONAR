@@ -4,7 +4,7 @@
 
 **nanoSONAR** ist ein kompakter MIDI-Mixer für **SteelSeries GG Sonar** unter Windows 11. Die Anwendung verbindet einen **KORG nanoKONTROL2** mit den Lautstärke- und Stummschaltfunktionen von Sonar. So lassen sich Audiokanäle über echte Fader, Drehregler und Tasten steuern, ohne ständig das Sonar-Fenster öffnen zu müssen.
 
-**Version:** 1.0.0 · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
+**Version:** 1.1.0 · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
 
 ## Funktionen
 
@@ -14,6 +14,7 @@
 - **Mixer-Oberfläche:** Acht Kanalzüge mit grafischen Fadern, Drehreglern und Mute-Anzeigen.
 - **Automatische Verbindung:** MIDI-Eingang, MIDI-Ausgang und SteelSeries Sonar werden beim Start verbunden; Wiederverbindungsversuche sind vorgesehen.
 - **System-Tray:** Im Hintergrund weiterlaufen und über das Tray-Menü öffnen oder beenden.
+- **Neu in v1.1:** Kleines OSD bei MIDI-Fader-, Drehregler- und Mute-Bedienung mit Kanal, Mix, Prozentwert und Stummstatus. Standard: oben rechts, drei Sekunden, nur bei ausgeblendetem Mixer. Im Einstellungsfenster stehen sechs Positionen zur Auswahl: oben links, oben Mitte, oben rechts, unten links, unten Mitte und unten rechts.
 - **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
 - **Konfigurierbare MIDI-Profile** und gespeicherte Einstellungen.
 
@@ -31,9 +32,9 @@ Die weiteren Kanalzüge sind in der Oberfläche vorhanden; ihre Nutzung hängt v
 
 ## Download & Nutzung
 
-Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt, sobald ein Release veröffentlicht wurde.
+Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt.
 
-1. Das ZIP `nanoSONAR-v1.0-win-x64.zip` aus dem jeweiligen Release herunterladen.
+1. Das ZIP `nanoSONAR-v1.1-win-x64.zip` aus dem v1.1-Release herunterladen.
 2. An einem **dauerhaften Speicherort** entpacken.
 3. `nanoSONAR.exe` starten.
 

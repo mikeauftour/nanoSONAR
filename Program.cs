@@ -18,7 +18,8 @@ internal sealed class SonarApi : IDisposable
     private readonly HttpClient http = new() { Timeout = TimeSpan.FromSeconds(3) };
     private readonly HttpClient ggHttp = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (request, cert, chain, errors) => request.RequestUri?.IsLoopback == true }) { Timeout = TimeSpan.FromSeconds(3) };
     private string? endpoint;
-    public void Dispose() { http.Dispose(); ggHttp.Dispose(); }
+    private readonly SonarLiveFeedback liveFeedback = new();
+    public void Dispose() { liveFeedback.Dispose(); http.Dispose(); ggHttp.Dispose(); }
     public async Task Connect()
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SteelSeries", "GG", "coreProps.json");
@@ -36,6 +37,7 @@ internal sealed class SonarApi : IDisposable
         if (!Uri.TryCreate(candidate, UriKind.Absolute, out var apiUri) || !apiUri.IsLoopback)
             throw new Exception("Sonar-API ist keine lokale Loopback-Adresse.");
         endpoint = candidate;
+        liveFeedback.Configure(address);
         _ = await Volumes("classic");
     }
     private static string? FindSonar(JsonNode? node)
@@ -58,9 +60,13 @@ internal sealed class SonarApi : IDisposable
     {
         var v = Math.Clamp(value, 0, 1).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
         await Put(mode == "classic" ? $"volumeSettings/classic/{key}/volume/{v}" : $"volumeSettings/streamer/{mix}/{key}/volume/{v}");
+        if (mode != "classic") await liveFeedback.Volume(mix, key, value);
     }
-    public async Task SetMute(string mode, string mix, string key, bool muted) =>
+    public async Task SetMute(string mode, string mix, string key, bool muted)
+    {
         await Put(mode == "classic" ? $"volumeSettings/classic/{key}/isMuted/{muted.ToString().ToLowerInvariant()}" : $"volumeSettings/streamer/{mix}/{key}/isMuted/{muted.ToString().ToLowerInvariant()}");
+        if (mode != "classic") await liveFeedback.Mute(mix, key, muted);
+    }
 }
 
 internal sealed class ControllerProfile

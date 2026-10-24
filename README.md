@@ -1,10 +1,10 @@
 # nanoSONAR
 
-![nanoSONAR-Icon](nanoSONAR-icon.png)
+![nanoSONAR-Icon](assets/nanoSONAR-icon.png)
 
 **nanoSONAR** ist ein kompakter MIDI-Mixer für **SteelSeries GG Sonar** unter Windows 11. Die Anwendung verbindet einen **KORG nanoKONTROL2** mit den Lautstärke- und Stummschaltfunktionen von Sonar. So lassen sich Audiokanäle über echte Fader, Drehregler und Tasten steuern, ohne ständig das Sonar-Fenster öffnen zu müssen.
 
-**Stabile Version:** 1.1.0 · **In Entwicklung:** 1.2 (Streamer-Live-Feedback) · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
+**Aktuelle Version:** 1.2.0 · **Streamer-Live-Feedback:** experimentell · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
 
 ## Funktionen
 
@@ -32,9 +32,9 @@ Die weiteren Kanalzüge sind in der Oberfläche vorhanden; ihre Nutzung hängt v
 
 ## Download & Nutzung
 
-Die **portable Windows-Version** wird über die [GitHub Releases](http://192.168.178.28:8189/Mike/nanoSONAR/releases) bereitgestellt.
+Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt.
 
-1. Das ZIP `nanoSONAR-v1.1-win-x64.zip` aus dem v1.1-Release herunterladen.
+1. Das ZIP `nanoSONAR-v1.2-win-x64.zip` aus dem v1.2.0-Release herunterladen.
 2. An einem **dauerhaften Speicherort** entpacken.
 3. `nanoSONAR.exe` starten.
 
@@ -68,4 +68,17 @@ Die fertige Anwendung liegt in `dist/portable/nanoSONAR.exe`. Weitere Hinweise z
 
 Entwicklung: **Mike auf Tour**
 
-Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](http://192.168.178.28:8189/Mike/nanoSONAR/issues) einreichen.
+Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](https://github.com/mikeauftour/nanoSONAR/issues) einreichen.
+
+## Code signing policy
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation **if the project is accepted**. Signing is not yet active; current downloadable builds are unsigned.
+
+- Committer, reviewer and signing approver: [mikeauftour](https://github.com/mikeauftour).
+- Changes from external contributors require review by the maintainer before merging.
+- Signing requests will require explicit approval by the maintainer.
+- Privacy: nanoSONAR communicates with local SteelSeries GG/Sonar services via loopback and stores its settings locally. It does not intentionally transfer user data to external networked systems. External services, if configured by the user, are subject to their own privacy policies.
+- Security and release process: source changes and Windows release builds are tracked in this public GitHub repository. [Windows builds](https://github.com/mikeauftour/nanoSONAR/actions) and [releases](https://github.com/mikeauftour/nanoSONAR/releases) are public. Signed releases will be identified as such only after signing has been configured and verified.
+- Installation: extract the portable ZIP and start the EXE. Uninstallation: disable the app's Windows autostart setting, close the application, and delete the extracted folder. User settings stored separately can be deleted manually.
+
+See [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).

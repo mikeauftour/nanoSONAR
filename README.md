@@ -32,6 +32,9 @@ Die weiteren Kanalzüge sind in der Oberfläche vorhanden; ihre Nutzung hängt v
 
 ## Download & Nutzung
 
+**Code signing policy:** [Richtlinie zur Codesignierung](CODE_SIGNING_POLICY.md). Free code signing provided by SignPath.io, certificate by SignPath Foundation **only after approval**. **Derzeit sind die Releases nicht signiert.**
+
+
 Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt.
 
 1. Das ZIP `nanoSONAR-v1.2-win-x64.zip` aus dem v1.2.0-Release herunterladen.

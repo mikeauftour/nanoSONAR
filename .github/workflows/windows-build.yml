@@ -49,5 +49,5 @@ jobs:
             Write-Host "Release $tag already exists; skipping."
             exit 0
           }
-          gh release create $tag dist/releases/nanoSONAR-v1.2-win-x64.zip --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "nanoSONAR v1.2.0" --notes "Windows x64 portable release. Includes Sonar live feedback and current v1.2 improvements. This executable is not yet code-signed."
+          gh release create $tag dist/releases/nanoSONAR-v1.2-win-x64.zip --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "nanoSONAR v1.2.0" --notes "Windows x64 portable release. Includes Sonar live feedback and current v1.2 improvements. This executable is not yet code-signed. Code signing policy: https://github.com/mikeauftour/nanoSONAR/blob/main/CODE_SIGNING_POLICY.md. Free code signing provided by SignPath.io, certificate by SignPath Foundation, subject to acceptance."
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

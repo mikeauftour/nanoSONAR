@@ -18,7 +18,8 @@ internal sealed class SonarApi : IDisposable
     private readonly HttpClient http = new() { Timeout = TimeSpan.FromSeconds(3) };
     private readonly HttpClient ggHttp = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (request, cert, chain, errors) => request.RequestUri?.IsLoopback == true }) { Timeout = TimeSpan.FromSeconds(3) };
     private string? endpoint;
-    public void Dispose() { http.Dispose(); ggHttp.Dispose(); }
+    private readonly SonarLiveFeedback liveFeedback = new();
+    public void Dispose() { liveFeedback.Dispose(); http.Dispose(); ggHttp.Dispose(); }
     public async Task Connect()
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SteelSeries", "GG", "coreProps.json");
@@ -36,6 +37,7 @@ internal sealed class SonarApi : IDisposable
         if (!Uri.TryCreate(candidate, UriKind.Absolute, out var apiUri) || !apiUri.IsLoopback)
             throw new Exception("Sonar-API ist keine lokale Loopback-Adresse.");
         endpoint = candidate;
+        liveFeedback.Configure(address);
         _ = await Volumes("classic");
     }
     private static string? FindSonar(JsonNode? node)
@@ -58,9 +60,13 @@ internal sealed class SonarApi : IDisposable
     {
         var v = Math.Clamp(value, 0, 1).ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture);
         await Put(mode == "classic" ? $"volumeSettings/classic/{key}/volume/{v}" : $"volumeSettings/streamer/{mix}/{key}/volume/{v}");
+        if (mode != "classic") await liveFeedback.Volume(mix, key, value);
     }
-    public async Task SetMute(string mode, string mix, string key, bool muted) =>
+    public async Task SetMute(string mode, string mix, string key, bool muted)
+    {
         await Put(mode == "classic" ? $"volumeSettings/classic/{key}/isMuted/{muted.ToString().ToLowerInvariant()}" : $"volumeSettings/streamer/{mix}/{key}/isMuted/{muted.ToString().ToLowerInvariant()}");
+        if (mode != "classic") await liveFeedback.Mute(mix, key, muted);
+    }
 }
 
 internal sealed class ControllerProfile
@@ -171,11 +177,26 @@ internal sealed class MixerForm : Form
             if (startup.AutoStart)
             {
                 string exe = Environment.ProcessPath ?? Application.ExecutablePath;
-                // dotnet run uses dotnet.exe as host; do not register an invalid developer launch.
-                if (Path.GetFileName(exe).Equals("dotnet.exe", StringComparison.OrdinalIgnoreCase) ||
-                    (exe.Contains(@"\bin\Debug\", StringComparison.OrdinalIgnoreCase) || exe.Contains(@"\bin\Release\", StringComparison.OrdinalIgnoreCase)) && !exe.Contains(@"\publish\", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("Autostart erst mit der veröffentlichten nanoSONAR.exe aktivieren (dotnet publish).");
-                key.SetValue(RunValue, $"\"{exe}\"" + (startup.StartInTray ? " --tray" : ""), RegistryValueKind.String);
+                string command;
+                if (Path.GetFileName(exe).Equals("dotnet.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Framework-dependent distribution: register the DLL as the dotnet argument.
+                    // Never register an intermediate bin/obj developer build.
+                    string dll = typeof(Program).Assembly.Location;
+                    if (!File.Exists(dll) ||
+                        dll.Contains(@"\bin\", StringComparison.OrdinalIgnoreCase) ||
+                        dll.Contains(@"\obj\", StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Autostart nur mit der veröffentlichten nanoSONAR.dll aktivieren.");
+                    command = $"\"{exe}\" \"{dll}\"";
+                }
+                else
+                {
+                    if (exe.Contains(@"\bin\Debug\", StringComparison.OrdinalIgnoreCase) ||
+                        exe.Contains(@"\bin\Release\", StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Autostart nur mit einer veröffentlichten nanoSONAR.exe aktivieren.");
+                    command = $"\"{exe}\"";
+                }
+                key.SetValue(RunValue, command + (startup.StartInTray ? " --tray" : ""), RegistryValueKind.String);
             }
             else key.DeleteValue(RunValue, throwOnMissingValue: false);
         }
@@ -309,7 +330,7 @@ internal sealed class MixerForm : Form
 
     private void InitializeMixer()
     {
-        Text = "nanoSONAR v1.1 – KORG nanoKONTROL2"; Size = new Size(1450, 650); MinimumSize = new Size(1150, 650); MaximumSize = new Size(10000, 650); MaximizeBox = false;
+        Text = "nanoSONAR v1.2 – KORG nanoKONTROL2"; Size = new Size(1450, 650); MinimumSize = new Size(1150, 650); MaximumSize = new Size(10000, 650); MaximizeBox = false;
         BackColor = Color.FromArgb(23, 26, 34); ForeColor = Color.White;
         // Compact toolbar: configuration controls live in a separate settings window.
         var toolbar = new TableLayoutPanel { Dock = DockStyle.Top, Height = 54, ColumnCount = 4, RowCount = 1,

@@ -4,7 +4,7 @@
 
 **nanoSONAR** ist ein kompakter MIDI-Mixer für **SteelSeries GG Sonar** unter Windows 11. Die Anwendung verbindet einen **KORG nanoKONTROL2** mit den Lautstärke- und Stummschaltfunktionen von Sonar. So lassen sich Audiokanäle über echte Fader, Drehregler und Tasten steuern, ohne ständig das Sonar-Fenster öffnen zu müssen.
 
-**Version:** 1.1.0 · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
+**Stabile Version:** 1.1.0 · **In Entwicklung:** 1.2 (Streamer-Live-Feedback) · **Plattform:** Windows 11 (x64) · **Technik:** C# / .NET 8 / WinForms
 
 ## Funktionen
 
@@ -15,7 +15,7 @@
 - **Automatische Verbindung:** MIDI-Eingang, MIDI-Ausgang und SteelSeries Sonar werden beim Start verbunden; Wiederverbindungsversuche sind vorgesehen.
 - **System-Tray:** Im Hintergrund weiterlaufen und über das Tray-Menü öffnen oder beenden.
 - **Neu in v1.1:** Kleines OSD bei MIDI-Fader-, Drehregler- und Mute-Bedienung mit Kanal, Mix, Prozentwert und Stummstatus. Standard: oben rechts, drei Sekunden, nur bei ausgeblendetem Mixer. Im Einstellungsfenster stehen sechs Positionen zur Auswahl: oben links, oben Mitte, oben rechts, unten links, unten Mitte und unten rechts.
-- **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
+- **v1.2-Testfunktion (Streamer-Modus):** Nach Lautstärke- und Mute-Änderungen sendet nanoSONAR zusätzlich ein GG-Eventing-Signal, damit sich die Regler in der SteelSeries-GG-Oberfläche live aktualisieren. Für Master, Game, Chat, Media und Aux; Mic/ChatCapture ist noch nicht über GG-Aktionen abgedeckt. Diese Funktion muss auf Windows mit SteelSeries GG getestet werden.\n- **Windows-Autostart:** Wahlweise mit sichtbarem Fenster oder direkt im Tray.
 - **Konfigurierbare MIDI-Profile** und gespeicherte Einstellungen.
 
 ### Standardbelegung (KORG nanoKONTROL2)
@@ -32,7 +32,7 @@ Die weiteren Kanalzüge sind in der Oberfläche vorhanden; ihre Nutzung hängt v
 
 ## Download & Nutzung
 
-Die **portable Windows-Version** wird über die [GitHub Releases](https://github.com/mikeauftour/nanoSONAR/releases) bereitgestellt.
+Die **portable Windows-Version** wird über die [GitHub Releases](http://192.168.178.28:8189/Mike/nanoSONAR/releases) bereitgestellt.
 
 1. Das ZIP `nanoSONAR-v1.1-win-x64.zip` aus dem v1.1-Release herunterladen.
 2. An einem **dauerhaften Speicherort** entpacken.
@@ -48,19 +48,19 @@ Für die Steuerung werden **SteelSeries GG mit aktiviertem Sonar** und ein entsp
 
 Voraussetzung: **.NET 8 SDK** auf Windows 11.
 
-Im Repository-Ordner `BUILD-RELEASE.cmd` ausführen. Alternativ in PowerShell:
+Im Repository-Ordner `scripts\BUILD-RELEASE.cmd` ausführen. Alternativ in PowerShell:
 
 ```powershell
 dotnet restore
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o publish
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o dist/portable
 ```
 
-Die fertige Anwendung liegt in `publish/nanoSONAR.exe`. Weitere Hinweise zur Erstellung einer ZIP-Version stehen in [BUILD.md](BUILD.md).
+Die fertige Anwendung liegt in `dist/portable/nanoSONAR.exe`. Weitere Hinweise zur Erstellung einer ZIP-Version stehen in [BUILD.md](docs/BUILD.md).
 
 ## Wichtige Hinweise
 
 - nanoSONAR verwendet eine **lokale, nicht offiziell dokumentierte Sonar-Schnittstelle**. Änderungen an SteelSeries GG können die Kompatibilität beeinträchtigen.
-- **Noch nicht umgesetzt (geplant):** Wenn die Hardware-Fader am KORG nanoKONTROL2 bewegt werden, ändert nanoSONAR bereits die Lautstärke in Sonar. Die **sichtbare Bewegung bzw. Aktualisierung der Fader in der originalen SteelSeries-GG-Sonar-Oberfläche** funktioniert derzeit jedoch noch nicht. Diese Funktion soll mit einem zukünftigen Update nachgereicht werden.
+- **Streamer-Live-Feedback in Entwicklung:** Die neue GG-Eventing-Anbindung soll sichtbare Slider-Aktualisierungen ermöglichen; sie ist noch nicht unter Windows validiert. Classic-Modus und ChatCapture/Mic erhalten vorerst kein Eventing-Feedback. Die Sonar-API wird weiterhin regelmäßig abgefragt, sodass Änderungen aus SteelSeries GG in nanoSONAR übernommen werden.
 - Die Anwendung ist ein **unabhängiges Community-Projekt** und steht in keiner offiziellen Verbindung zu SteelSeries oder KORG.
 - Die Bedienung und insbesondere MIDI-LEDs hängen von Gerätekonfiguration, Treibern und Sonar-Modus ab.
 
@@ -68,4 +68,4 @@ Die fertige Anwendung liegt in `publish/nanoSONAR.exe`. Weitere Hinweise zur Ers
 
 Entwicklung: **Mike auf Tour**
 
-Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](https://github.com/mikeauftour/nanoSONAR/issues) einreichen.
+Fehlerberichte und Verbesserungsvorschläge bitte über [GitHub Issues](http://192.168.178.28:8189/Mike/nanoSONAR/issues) einreichen.

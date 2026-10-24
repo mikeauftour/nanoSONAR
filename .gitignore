@@ -5,3 +5,10 @@ nanoSONAR-v*-win-x64/
 nanoSONAR-v*-win-x64.zip
 .vs/
 *.user
+
+dist/
+run-v1.2/
+nanoSONAR-v1.2-dotnet-win-x64/
+nanoSONAR-v1.2-dotnet-win-x64.zip
+
+Archiv/

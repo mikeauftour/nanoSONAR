@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -36,3 +36,18 @@ jobs:
           name: nanoSONAR-v1.2-win-x64-unsigned
           path: dist/releases/nanoSONAR-v1.2-win-x64.zip
           if-no-files-found: error
+
+      - name: Publish v1.2.0 GitHub release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = 'v1.2.0'
+          gh release view $tag --repo "${{ github.repository }}" 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Release $tag already exists; skipping."
+            exit 0
+          }
+          gh release create $tag dist/releases/nanoSONAR-v1.2-win-x64.zip --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "nanoSONAR v1.2.0" --notes "Windows x64 portable release. Includes Sonar live feedback and current v1.2 improvements. This executable is not yet code-signed."
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
